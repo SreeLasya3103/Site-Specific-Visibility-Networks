@@ -1,0 +1,6 @@
+.conda/
+.vscode/
+model-files/*
+**/__pycache__/
+.venv
+**/runs/
