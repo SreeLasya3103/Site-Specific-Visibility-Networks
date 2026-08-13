@@ -28,22 +28,27 @@ class MetricInfo():
         return (output, self.m_type)
 
 def record_to_writer(metrics, writer, set, epoch):
-    for metric, r in metrics.items():
-        value = r[0]
-        m_type = r[1]
-        if m_type == 'figure':
-            writer.add_figure(f'{metric}/{set}', value, epoch)
-        elif m_type == 'scalar':
-            writer.add_scalar(f'{metric}/{set}', value, epoch)
+    try:
+        for metric, r in metrics.items():
+            value = r[0]
+            m_type = r[1]
+            if m_type == 'figure':
+                writer.add_figure(f'{metric}/{set}', value, epoch)
+            elif m_type == 'scalar':
+                writer.add_scalar(f'{metric}/{set}', value, epoch)
 
-    if epoch == 1 and set == 'validation':
-        multiline_layout = dict()
-        for metric,r in metrics.items():
-            if r[1] == 'scalar':
-                multiline_layout[metric] = {'Train v. Validation': ['Multiline', [f'{metric}/train', f'{metric}/validation']]}
-        writer.add_custom_scalars(multiline_layout)
+        if epoch == 1 and set == 'validation':
+            multiline_layout = dict()
+            for metric, r in metrics.items():
+                if r[1] == 'scalar':
+                    multiline_layout[metric] = {'Train v. Validation': ['Multiline', [f'{metric}/train', f'{metric}/validation']]}
+            writer.add_custom_scalars(multiline_layout)
 
-    writer.flush()
+        writer.flush()
+    except Exception as e:
+        import warnings
+        warnings.warn(f'TensorBoard logging skipped for {set} epoch {epoch}: {e}. '
+                      f'Training continues; scalar metrics are still saved to {set}_metrics.csv.')
 
 def record_to_csv(log_dir, metrics, set, epoch):
     file_path = os.path.join(log_dir, f'{set}_metrics.csv')

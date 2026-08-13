@@ -7,22 +7,22 @@ from pytorch_forecasting.metrics.point import MAPE, SMAPE
 from torchmetrics.regression import RelativeSquaredError as RSE
 import torchvision.transforms as tf
 from models.visnet import visnet_similarity
-from dsets.webcams import cls_10full_dual
+from dsets.webcams import cls_10full
 from losses.similarity import SimilarityVisibilityLoss
 
 CONFIG = {
-    'model_module': visnet_similarity,
+    'model_module': visnet.visnet,
     'model_params': {
-        'pretrained_visnet_path': 'D:\\Research - Lasya\\Visibility-Networks-Site-Specific\\vis_networks\\runs\Visnet Global\\best_epoch30.pt',
+        #'pretrained_visnet_path': 'D:\\Research - Lasya\\Visibility-Networks-Site-Specific\\vis_networks\\runs\Visnet Global\\best_epoch30.pt',
     },
     'transform_params': { 'dim': (280, 280) },
     'existing_model': None,
     'test_only': False,
     'use_amp': False,
-    'dset_module': cls_10full_dual,
+    'dset_module': cls_10full,
     'dset_params': {
         'dim': (280,280), 'n_channels': 3, 'crop': True,
-        'ref_dir': 'D:\\Research - Lasya\\NewWebcams\\references',
+        #'ref_dir': 'D:\\Research - Lasya\\NewWebcams\\references',
     },
     'dset_path': 'D:\\Research - Lasya\\NewWebcams',
     'splits_path': 'D:\\Research - Lasya\\NewWebcams',
@@ -37,7 +37,7 @@ CONFIG = {
     'cuda': True,
     'epochs': 80,
     'batch_size': 16,
-    'loss_func': SimilarityVisibilityLoss(),
+    'loss_func': nn.CrossEntropyLoss(),
     'OptimizerClass': torch.optim.Adam,
     'optimizer_params': { 'lr': 1e-3 },
     #'scheduler_class': sched.ReduceLROnPlateau,
