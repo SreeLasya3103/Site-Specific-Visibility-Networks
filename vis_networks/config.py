@@ -13,7 +13,7 @@ from dsets.webcams import cls_10full_dual
 CONFIG = {
     'model_module': visnet_similarity,
     'model_params': {
-        'pretrained_path': 'D:/Research - Lasya/Site-Specific-Visibility-Networks/vis_networks/runs/VisNetSimilarity/best_epoch79.pt',
+        'pretrained_path': 'D:/Research - Lasya/Site-Specific-Visibility-Networks/vis_networks/runs/VisNetSimilarity/best_epoch20.pt',
     },
     'transform_params': { 'dim': (280, 280) },
     'existing_model': None,
