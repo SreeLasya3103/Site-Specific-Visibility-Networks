@@ -1,3 +1,14 @@
+"""
+Figure 2 for the ICASSP submission.
+
+Distribution of per-site R^2 across the evaluation sites, for the four
+per-site training configurations. Grayscale so it survives black-and-white
+printing; no colour is used to carry information.
+
+Run from the directory holding the *AndPredictionsResults folders. Writes
+fig2_r2dist.png and fig2_r2dist.pdf beside itself; use the PDF in LaTeX.
+"""
+
 import os
 import numpy as np
 import pandas as pd
@@ -7,26 +18,35 @@ import matplotlib.pyplot as plt
 BASE = "."
 OUT = os.path.join(BASE, "fig2_r2dist.png")
 
-LABEL_SMALL = True
-MERGE_TOP_TIER = False
-FS_IN = 7.5
-FS_OUT = 7.0
+LABEL_SMALL = True       # counts for thin segments go outside, with a leader
+MERGE_TOP_TIER = True   # True: collapse >0.89 into a single "R^2 > 0.5" tier
+
+# ICASSP requires nine point type or larger throughout the paper, including
+# figure captions, so nothing here may drop below 9.
+FS_IN = 9.0
+FS_OUT = 9.0
 BAR_W = 0.52
 
 mpl.rcParams.update({
     "figure.dpi": 300, "savefig.dpi": 300,
     "font.family": "serif", "font.serif": ["Times New Roman", "DejaVu Serif"],
     "font.size": 9, "axes.labelsize": 9,
-    "xtick.labelsize": 8, "ytick.labelsize": 8, "legend.fontsize": 7.5,
+    "xtick.labelsize": 9, "ytick.labelsize": 9, "legend.fontsize": 9,
 })
 
+# (architecture, regime, results folder). At 9 pt the two-line labels
+# "VisNet\nFine-tuned" and "RMEP\nFine-tuned" collide, so the regime is drawn
+# once per pair beneath the axis instead.
 CONFIGS = [
-    ("VisNet\nScratch",    "VisNetPersiteAndPredictionsResults"),
-    ("RMEP\nScratch",      "RMEPPerSiteAndPredictionsResults"),
-    ("VisNet\nFine-tuned", "VisNetFineTuneAndPredictionsResults"),
-    ("RMEP\nFine-tuned",   "RMEPFineTuneAndPredictionsResults"),
+    ("VisNet", "Scratch",    "VisNetPersiteAndPredictionsResults"),
+    ("RMEP",   "Scratch",    "RMEPPerSiteAndPredictionsResults"),
+    ("VisNet", "Fine-tuned", "VisNetFineTuneAndPredictionsResults"),
+    ("RMEP",   "Fine-tuned", "RMEPFineTuneAndPredictionsResults"),
 ]
 
+# Ordered bottom -> top: the largest, least interesting tier sits at the base
+# in the lightest fill, the rarest tier caps the bar in the darkest fill.
+# Bins are lower-exclusive / upper-inclusive.
 TIERS = [
     (-np.inf, 0.00,   r"Poor ($R^2 \leq 0$)",     "#e6e6e6", "black", "<=0"),
     (0.00,    0.50,   r"Fair ($0$–$0.5$)",        "#b5b5b5", "black", "0-0.5"),
@@ -35,10 +55,15 @@ TIERS = [
 ]
 
 if MERGE_TOP_TIER:
-    TIERS = TIERS[:2] + [(0.50, np.inf, r"Good ($R^2 > 0.5$)", "#5a5a5a", "white", ">0.5")]
+    # Three entries have to share one legend row, so the tier names move to
+    # the caption and the legend carries the intervals alone.
+    TIERS = [(-np.inf, 0.00, r"$R^2 \leq 0$", "#e6e6e6", "black", "<=0"),
+             (0.00, 0.50, r"$0$–$0.5$", "#b5b5b5", "black", "0-0.5"),
+             (0.50, np.inf, r"$R^2 > 0.5$", "#5a5a5a", "white", ">0.5")]
 
 
 def resolve(folder):
+    """Locate a results folder case-insensitively (they were written on Windows)."""
     direct = os.path.join(BASE, folder, "persite_results.csv")
     if os.path.exists(direct):
         return direct
@@ -48,13 +73,21 @@ def resolve(folder):
     raise FileNotFoundError(f"{folder}/persite_results.csv not found under {os.path.abspath(BASE)}")
 
 
-def site_r2(folder):
+def load(folder):
+    """Per-site R^2 values, plus the OVERALL row that identifies the model."""
     df = pd.read_csv(resolve(folder))
-    df = df[df["site_id"] != "OVERALL"]
-    return df["R2"].dropna().values
+    overall = df[df["site_id"] == "OVERALL"]
+    per_site = df[df["site_id"] != "OVERALL"]
+    ident = None
+    if len(overall):
+        o = overall.iloc[0]
+        ident = (o["R2"], o["accuracy"] * 100.0, o["MAE_visibility"])
+    return per_site["R2"].dropna().values, ident
 
 
-data = [site_r2(f) for _, f in CONFIGS]
+loaded = [load(f) for _, _, f in CONFIGS]
+data = [d for d, _ in loaded]
+idents = [i for _, i in loaded]
 x = np.arange(len(CONFIGS))
 
 counts = np.zeros((len(TIERS), len(CONFIGS)), dtype=int)
@@ -62,7 +95,11 @@ for i, (lo, hi, _, _, _, _) in enumerate(TIERS):
     for j, v in enumerate(data):
         counts[i, j] = int(np.sum(v > lo) if np.isinf(hi) else np.sum((v > lo) & (v <= hi)))
 
-fig, ax = plt.subplots(figsize=(3.4, 2.7), constrained_layout=True)
+# Fixed layout, saved without a tight bounding box, so the file is exactly one
+# ICASSP column wide (86 mm). Included at \columnwidth it renders 1:1, which is
+# what keeps every label at its stated point size in the final PDF.
+fig, ax = plt.subplots(figsize=(3.39, 3.15))
+fig.subplots_adjust(left=0.165, right=0.995, top=0.855, bottom=0.175)
 ax.set_axisbelow(True)
 ax.yaxis.grid(True, color="#d0d0d0", linewidth=0.4)
 
@@ -78,8 +115,16 @@ for i, (_, _, lab, face, txt, _) in enumerate(TIERS):
 
 ax.set_ylabel("Number of sites")
 ax.set_xticks(x)
-ax.set_xticklabels([lab for lab, _ in CONFIGS])
+ax.set_xticklabels([arch for arch, _, _ in CONFIGS])
 ax.tick_params(axis="x", length=0)
+
+# Regime name once per pair, on a second row beneath the architecture names.
+for xc, regime in ((0.5, "Scratch"), (2.5, "Fine-tuned")):
+    ax.text(xc, -0.105, regime, transform=ax.get_xaxis_transform(),
+            ha="center", va="top", fontsize=9, clip_on=False)
+ax.plot([1.5, 1.5], [-0.135, -0.015], transform=ax.get_xaxis_transform(),
+        color="#999999", linewidth=0.5, clip_on=False)
+
 ax.set_xlim(-0.55, len(CONFIGS) - 1 + 0.75)   # headroom for the outside labels
 ax.set_ylim(0, bottoms.max() * 1.14)
 for side in ("top", "right"):
@@ -88,14 +133,17 @@ for side in ("top", "right"):
 handles, labels = ax.get_legend_handles_labels()
 handles, labels = handles[::-1], labels[::-1]          # darkest (top of stack) first
 ncol = 2 if len(TIERS) == 4 else 3
-if ncol == 2:                                          # matplotlib fills column-major;
-    order = [0, 2, 1, 3]                               # reorder so it reads left-to-right
-    handles = [handles[i] for i in order]
+if len(TIERS) == 4:
+    order = [0, 2, 1, 3]                               # matplotlib fills column-major
+    handles = [handles[i] for i in order]               # reorder so it reads left-to-right
     labels = [labels[i] for i in order]
 ax.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1.02),
           ncol=ncol, frameon=False, columnspacing=1.0, handlelength=1.3,
           handletextpad=0.5, borderaxespad=0.0)
 
+# Realise the layout so segment heights can be compared against the font size:
+# a count is only drawn inside its segment when the segment is tall enough to
+# hold it, which is what keeps the one- and two-site tiers from colliding.
 fig.canvas.draw()
 ax_pt = ax.get_window_extent().height * 72.0 / fig.dpi
 y0, y1 = ax.get_ylim()
@@ -130,13 +178,40 @@ if LABEL_SMALL:
                     fontsize=FS_OUT, color="black", zorder=6,
                     bbox=dict(facecolor="white", edgecolor="none", pad=1.0))
 
-os.makedirs(os.path.dirname(OUT), exist_ok=True)
-fig.savefig(OUT, dpi=300, bbox_inches="tight")
-fig.savefig(os.path.splitext(OUT)[0] + ".pdf", bbox_inches="tight")
+out_dir = os.path.dirname(OUT)
+if out_dir:
+    os.makedirs(out_dir, exist_ok=True)
+fig.savefig(OUT, dpi=300)
+fig.savefig(os.path.splitext(OUT)[0] + ".pdf")
 print("saved", OUT, "and", os.path.splitext(OUT)[0] + ".pdf")
 
-print(f"\n{'configuration':<16}" + "".join(f"{t[5]:>10}" for t in TIERS) + f"{'sites':>8}")
-for j, (lab, _) in enumerate(CONFIGS):
-    name = lab.replace("\n", " ")
-    print(f"{name:<16}" + "".join(f"{counts[i, j]:>10d}" for i in range(len(TIERS)))
-          + f"{len(data[j]):>8d}")
+# OVERALL values of the rerun lineage (Site-Specific-Visibility-Networks),
+# which is the lineage the ICASSP table is computed from. The original
+# repository's archived run gives different values and belongs with the
+# journal manuscript, not with this figure.
+ARCHIVED = {
+    "VisNet Scratch":    (-0.2974, 33.1, 2.252),
+    "RMEP Scratch":      (-0.3406, 33.6, 2.271),
+    "VisNet Fine-tuned": (0.1932, 40.7, 1.653),
+    "RMEP Fine-tuned":   (0.2986, 43.0, 1.515),
+}
+
+print(f"\n{'configuration':<18}" + "".join(f"{t[5]:>10}" for t in TIERS)
+      + f"{'sites':>7}{'OVERALL R2':>12}{'Acc':>7}{'MAE':>7}   identity")
+for j, (arch, regime, _) in enumerate(CONFIGS):
+    name = f"{arch} {regime}"
+    row = (f"{name:<18}" + "".join(f"{counts[i, j]:>10d}" for i in range(len(TIERS)))
+           + f"{len(data[j]):>7d}")
+    if idents[j] is None:
+        print(row + f"{'-':>12}{'-':>7}{'-':>7}   no OVERALL row")
+        continue
+    r2, acc, mae = idents[j]
+    expected = ARCHIVED.get(name)
+    if expected is None:
+        tag = ""
+    elif (abs(r2 - expected[0]) < 0.01 and abs(acc - expected[1]) < 0.2
+          and abs(mae - expected[2]) < 0.01):
+        tag = "matches archive"
+    else:
+        tag = f"MISMATCH (archive: R2={expected[0]:.4f}, {expected[1]:.1f}%, MAE={expected[2]:.3f})"
+    print(row + f"{r2:>12.4f}{acc:>7.1f}{mae:>7.3f}   {tag}")
