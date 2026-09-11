@@ -29,6 +29,8 @@ BAR_W = 0.52
 
 mpl.rcParams.update({
     "figure.dpi": 300, "savefig.dpi": 300,
+    "pdf.fonttype": 42, "ps.fonttype": 42,
+    "mathtext.fontset": "stix",
     "font.family": "serif", "font.serif": ["Times New Roman", "DejaVu Serif"],
     "font.size": 9, "axes.labelsize": 9,
     "xtick.labelsize": 9, "ytick.labelsize": 9, "legend.fontsize": 9,
