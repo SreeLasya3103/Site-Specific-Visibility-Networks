@@ -1,0 +1,88 @@
+collection without nested duplicates: 93563 images, 348 sites, 1333 views, 32659 capture events, 227 harvest folders
+collection counts by value: [(0.0, 9), (1.0, 814), (1.25, 658), (1.5, 728), (1.75, 753), (2.0, 1192), (2.25, 179), (2.5, 984), (3.0, 2301), (4.0, 1797), (5.0, 2309), (6.0, 2719), (7.0, 2785), (8.0, 2521), (9.0, 30342), (10.0, 43472)]
+sites with >= 20 images: 12535 images, 255 sites, 967 views, 6873 events, 222 harvest folders
+subset reports above 10 mi: {'12': 7, '14': 2, '15': 119, '20': 26, '25': 16, '30': 29, '40': 1, '60': 10}
+class table: [('1', 1352, 2962), ('2', 1352, 2355), ('3', 1352, 2301), ('4', 1352, 1797), ('5', 1352, 2309), ('6', 1352, 2719), ('7', 1352, 2785), ('8', 1352, 2521), ('9', 1352, 30342), ('10', 1352, 43472)]
+subset: 13520 images, 344 sites, 1229 views, 7653 events, 225 capture folders
+images per site: median 33, mean 39.3, min 1, max 281; >=20 images: 255 sites, 12535 images
+views per site: [(1, 9), (2, 34), (3, 52), (4, 249)]
+frames per event: [(1, 4170), (2, 1653), (3, 1276), (4, 554)]
+events straddling pooled splits: 2026; images 5723 (42.3%)
+classes per site: [(1, 11), (2, 11), (3, 21), (4, 20), (5, 34), (6, 41), (7, 55), (8, 54), (9, 70), (10, 27)]
+images per month: [('2024-04', 123), ('2024-05', 808), ('2024-06', 1227), ('2024-07', 2252), ('2024-08', 1351), ('2024-09', 695), ('2024-10', 629), ('2024-11', 37), ('2024-12', 643), ('2025-01', 936), ('2025-02', 1765), ('2025-03', 1937), ('2025-04', 1077), ('2025-05', 40)]
+images per hour (folder time, US Eastern): [(9, 92), (10, 1499), (11, 1066), (12, 1194), (13, 2046), (14, 1599), (15, 2425), (16, 1659), (17, 756), (18, 366), (19, 578), (20, 240)]
+per-site: 255 sites, 12535 images; train/val/test 7394/1685/3456 = 59.0/13.4/27.6%; medians 25/6/12; median site total 41
+per-site test images in pooled train: 2475 (71.6%), pooled val 483, pooled test 498
+per-site events shared between train/val/test: 0
+evaluation set: 979 images, 231 sites; pooled validation 481, pooled test 498
+T6.1 VisNet Pooled: acc 24.0 w2 65.8 w1 47.5 MAE 2.100 RMSE 2.875 logMAE 0.225 extMAE 0.714
+T6.1 RMEP Pooled: acc 26.8 w2 67.3 w1 49.9 MAE 1.967 RMSE 2.744 logMAE 0.209 extMAE 0.662
+T6.1 VisNet-Similarity Pooled: acc 27.2 w2 65.3 w1 50.3 MAE 2.045 RMSE 2.861 logMAE 0.229 extMAE 0.760
+T6.1 VisNet Scratch: acc 23.1 w2 54.2 w1 39.6 MAE 2.623 RMSE 3.505 logMAE 0.289 extMAE 0.930
+T6.1 RMEP Scratch: acc 24.7 w2 56.8 w1 41.9 MAE 2.514 RMSE 3.429 logMAE 0.268 extMAE 0.839
+T6.1 VisNet-Similarity Per-site heads: acc 25.3 w2 57.0 w1 41.8 MAE 2.508 RMSE 3.415 logMAE 0.271 extMAE 0.857
+T6.1 VisNet Fine-tuned: acc 27.4 w2 65.3 w1 49.7 MAE 2.056 RMSE 2.857 logMAE 0.225 extMAE 0.729
+T6.1 RMEP Fine-tuned: acc 33.4 w2 70.7 w1 54.5 MAE 1.763 RMSE 2.568 logMAE 0.188 extMAE 0.587
+T6.1 VisNet-Similarity Fine-tuned: acc 31.8 w2 66.7 w1 53.4 MAE 1.938 RMSE 2.793 logMAE 0.216 extMAE 0.707
+T6.1 baseline majority (train+val, ties->lower): acc 24.7 w2 56.3 MAE 2.537 RMSE 3.452 logMAE 0.271
+   majority variant tr/lower: MAE 2.713 logMAE 0.298
+   majority variant tr/higher: MAE 2.698 logMAE 0.276
+   majority variant tr/first: MAE 2.676 logMAE 0.279
+   majority variant trva/lower: MAE 2.537 logMAE 0.271
+   majority variant trva/higher: MAE 2.474 logMAE 0.253
+   majority variant trva/first: MAE 2.503 logMAE 0.260
+   majority baseline MAE range over variants: 2.474-2.713
+T6.1 baseline constant 5.5: MAE 2.320 RMSE 2.697 logMAE 0.224
+ranking by mae: RMEP Fine-tuned < VisNet-Similarity Fine-tuned < RMEP Pooled < VisNet-Similarity Pooled < VisNet Fine-tuned < VisNet Pooled < VisNet-Similarity Per-site heads < RMEP Scratch < VisNet Scratch
+ranking by logmae: RMEP Fine-tuned < RMEP Pooled < VisNet-Similarity Fine-tuned < VisNet Pooled < VisNet Fine-tuned < VisNet-Similarity Pooled < RMEP Scratch < VisNet-Similarity Per-site heads < VisNet Scratch
+ranking by extmae: RMEP Fine-tuned < RMEP Pooled < VisNet-Similarity Fine-tuned < VisNet Pooled < VisNet Fine-tuned < VisNet-Similarity Pooled < RMEP Scratch < VisNet-Similarity Per-site heads < VisNet Scratch
+T6.2 VisNet Pooled - VisNet Fine-tuned: dMAE +0.044 [-0.056, +0.146] p=0.4004; dlog -0.0004 [-0.0128, +0.0116] p=0.9604
+T6.2 RMEP Pooled - RMEP Fine-tuned: dMAE +0.204 [+0.107, +0.304] p=0.0000; dlog +0.0209 [+0.0090, +0.0329] p=0.0002
+T6.2 VisNet-Similarity Pooled - VisNet-Similarity Fine-tuned: dMAE +0.107 [+0.027, +0.190] p=0.0118; dlog +0.0128 [+0.0037, +0.0222] p=0.0070
+T6.2 VisNet Scratch - VisNet Fine-tuned: dMAE +0.567 [+0.398, +0.734] p=0.0000; dlog +0.0641 [+0.0448, +0.0839] p=0.0000
+T6.2 RMEP Scratch - RMEP Fine-tuned: dMAE +0.751 [+0.580, +0.917] p=0.0000; dlog +0.0802 [+0.0614, +0.0989] p=0.0000
+T6.2 VisNet-Similarity Per-site heads - VisNet-Similarity Fine-tuned: dMAE +0.570 [+0.402, +0.734] p=0.0000; dlog +0.0551 [+0.0360, +0.0743] p=0.0000
+T6.2 RMEP Pooled - VisNet Pooled: dMAE -0.133 [-0.249, -0.014] p=0.0256; dlog -0.0160 [-0.0304, -0.0017] p=0.0268
+T6.2 VisNet-Similarity Pooled - VisNet Pooled: dMAE -0.055 [-0.132, +0.023] p=0.1732; dlog +0.0040 [-0.0057, +0.0137] p=0.4200
+T6.2 VisNet Fine-tuned - RMEP Fine-tuned: dMAE +0.293 [+0.174, +0.417] p=0.0000; dlog +0.0374 [+0.0232, +0.0519] p=0.0000
+T6.2 VisNet-Similarity Fine-tuned - RMEP Fine-tuned: dMAE +0.175 [+0.052, +0.298] p=0.0066; dlog +0.0282 [+0.0128, +0.0433] p=0.0002
+T6.2 VisNet-Similarity Fine-tuned - VisNet Fine-tuned: dMAE -0.118 [-0.223, -0.019] p=0.0208; dlog -0.0093 [-0.0217, +0.0029] p=0.1430
+Holm over 11 MAE comparisons: significant = ['RMEP', 'VisNet', 'RMEP', 'Similarity\\textsuperscript{a}', 'VisNet $-$ RMEP', 'Similarity $-$ RMEP']
+T6.3 VisNet Pooled: constant at 1/255 sites (255 with >1 test image; 0 = a training-majority class); per-site log-MAE on eval set: median 0.186 over 231 sites
+T6.3 RMEP Pooled: constant at 3/255 sites (255 with >1 test image; 3 = a training-majority class); per-site log-MAE on eval set: median 0.185 over 231 sites
+T6.3 VisNet-Similarity Pooled: constant at 3/255 sites (255 with >1 test image; 3 = a training-majority class); per-site log-MAE on eval set: median 0.191 over 231 sites
+T6.3 VisNet Scratch: best epoch median 3, best=1 at 11% of sites, 2 sites ran all 60 epochs
+T6.3 VisNet Scratch: constant at 223/253 sites (253 with >1 test image; 135 = a training-majority class); per-site log-MAE on eval set: median 0.235 over 231 sites
+T6.3 RMEP Scratch: best epoch median 2, best=1 at 49% of sites, 13 sites ran all 60 epochs
+T6.3 RMEP Scratch: constant at 164/255 sites (255 with >1 test image; 137 = a training-majority class); per-site log-MAE on eval set: median 0.222 over 231 sites
+T6.3 VisNet-Similarity Per-site heads: best epoch median 22, best=1 at 13% of sites, 63 sites ran all 60 epochs
+T6.3 VisNet-Similarity Per-site heads: constant at 142/255 sites (255 with >1 test image; 86 = a training-majority class); per-site log-MAE on eval set: median 0.220 over 231 sites
+T6.3 VisNet Fine-tuned: best epoch median 3, best=1 at 40% of sites, 6 sites ran all 60 epochs
+T6.3 VisNet Fine-tuned: constant at 7/255 sites (255 with >1 test image; 7 = a training-majority class); per-site log-MAE on eval set: median 0.197 over 231 sites
+T6.3 RMEP Fine-tuned: best epoch median 1, best=1 at 51% of sites, 9 sites ran all 60 epochs
+T6.3 RMEP Fine-tuned: constant at 14/255 sites (255 with >1 test image; 13 = a training-majority class); per-site log-MAE on eval set: median 0.155 over 231 sites
+T6.3 VisNet-Similarity Fine-tuned: best epoch median 4, best=1 at 38% of sites, 18 sites ran all 60 epochs
+T6.3 VisNet-Similarity Fine-tuned: constant at 8/255 sites (255 with >1 test image; 8 = a training-majority class); per-site log-MAE on eval set: median 0.177 over 231 sites
+T6.4 VisNet Scratch (253 sites, r(n,k)=+0.62): acc -0.12/-0.20/-0.44/+0.22; within2 +0.08/-0.03/-0.03/+0.13; mae -0.10/+0.03/-0.01/-0.12; rmse -0.13/-0.01/-0.05/-0.13; logmae -0.01/+0.17/+0.13/-0.11
+T6.4 RMEP Scratch (253 sites, r(n,k)=+0.62): acc -0.14/-0.27/-0.50/+0.25; within2 +0.07/-0.06/-0.10/+0.17; mae -0.08/+0.07/+0.08/-0.17; rmse -0.10/+0.03/+0.04/-0.16; logmae +0.01/+0.19/+0.20/-0.14
+T6.4 VisNet-Similarity Per-site heads (253 sites, r(n,k)=+0.62): acc -0.06/-0.14/-0.40/+0.25; within2 +0.07/-0.04/-0.19/+0.24; mae -0.09/+0.07/+0.15/-0.23; rmse -0.09/+0.05/+0.15/-0.23; logmae -0.03/+0.16/+0.17/-0.18
+T6.4 VisNet Fine-tuned (253 sites, r(n,k)=+0.62): acc -0.10/-0.19/-0.44/+0.25; within2 +0.08/+0.01/-0.14/+0.22; mae -0.04/+0.08/+0.21/-0.23; rmse -0.05/+0.07/+0.18/-0.21; logmae -0.01/+0.15/+0.22/-0.19
+T6.4 RMEP Fine-tuned (253 sites, r(n,k)=+0.62): acc -0.16/-0.21/-0.48/+0.21; within2 +0.07/-0.01/-0.14/+0.21; mae +0.00/+0.14/+0.27/-0.22; rmse +0.01/+0.12/+0.26/-0.20; logmae +0.04/+0.20/+0.31/-0.20
+T6.4 VisNet-Similarity Fine-tuned (253 sites, r(n,k)=+0.62): acc -0.10/-0.15/-0.43/+0.24; within2 +0.12/+0.09/-0.10/+0.23; mae -0.06/+0.01/+0.18/-0.23; rmse -0.08/-0.02/+0.13/-0.21; logmae +0.00/+0.12/+0.23/-0.18
+T7.1 VisNet: trained 0.554 ± 0.039 (image-level 0.567); untrained seeds 42/1/2 0.742/0.794/0.751 mean 0.763; dim 4096, pca 50, images 471, events 369, pooled-train 0
+T7.1 RMEP: trained 0.355 ± 0.037 (image-level 0.366); untrained seeds 42/1/2 0.440/0.414/0.415 mean 0.423; dim 256, pca 50, images 471, events 369, pooled-train 0
+T7.1 Similarity full: 0.753 ± 0.041 (image-level 0.741), dim 256
+T7.1 Similarity p_curr: 0.551 ± 0.036 (image-level 0.542), dim 128
+T7.1 Similarity p_diff: 0.797 ± 0.040 (image-level 0.779), dim 128
+T7.2 RMEP SITE22: rho +0.45 ± 0.07, acc 38.2 ± 5.4, majority 35.9; n 281, pooled-train 209, events 131, classes 8
+T7.2 RMEP SITE43: rho +0.07 ± 0.32, acc 17.3 ± 8.4, majority 17.8; n 73, pooled-train 48, events 31, classes 8
+T7.2 VisNet SITE22: rho +0.52 ± 0.11, acc 41.9 ± 4.9, majority 35.9; n 281, pooled-train 209, events 131, classes 8
+T7.2 VisNet SITE43: rho +0.28 ± 0.25, acc 8.1 ± 5.2, majority 17.8; n 73, pooled-train 48, events 31, classes 8
+T7.2 VisNet-Similarity SITE22: rho +0.52 ± 0.09, acc 43.2 ± 2.9, majority 35.9; n 281, pooled-train 209, events 131, classes 8
+T7.2 VisNet-Similarity SITE43: rho +0.01 ± 0.29, acc 8.4 ± 5.8, majority 17.8; n 73, pooled-train 48, events 31, classes 8
+T6.0 VisNet pooled validation: n 2030, acc 28.4, w2 66.5, MAE 2.054, RMSE 2.916; per-site rows 216 sites, 1801 images
+T6.0 VisNet pooled test: n 2030, acc 26.9, w2 66.1, MAE 2.109, RMSE 2.971; per-site rows 208 sites, 1812 images
+T6.0 RMEP pooled validation: n 2030, acc 28.7, w2 67.6, MAE 1.947, RMSE 2.753; per-site rows 216 sites, 1801 images
+T6.0 RMEP pooled test: n 2030, acc 29.3, w2 66.7, MAE 1.977, RMSE 2.814; per-site rows 208 sites, 1812 images
+T6.0 VisNet-Similarity pooled validation: n 2029, acc 29.7, w2 66.2, MAE 2.025, RMSE 2.901; per-site rows 216 sites, 1801 images
+T6.0 VisNet-Similarity pooled test: n 2029, acc 27.8, w2 63.7, MAE 2.134, RMSE 3.005; per-site rows 208 sites, 1812 images

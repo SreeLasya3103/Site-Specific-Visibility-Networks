@@ -1,0 +1,18 @@
+\multicolumn{6}{l}{\emph{Adaptation (pooled $-$ fine-tuned)}} \\
+\quad VisNet & $+0.044$ & [$-0.056$, $+0.146$] & 0.400 & $0.000$ & 0.960 \\
+\quad RMEP & $+0.204$\textsuperscript{*} & [$+0.107$, $+0.304$] & $<$0.001 & $+0.021$ & $<$0.001 \\
+\quad Similarity & $+0.107$ & [$+0.027$, $+0.190$] & 0.012 & $+0.013$ & 0.007 \\
+\midrule
+\multicolumn{6}{l}{\emph{Initialization (scratch $-$ fine-tuned)}} \\
+\quad VisNet & $+0.567$\textsuperscript{*} & [$+0.398$, $+0.734$] & $<$0.001 & $+0.064$ & $<$0.001 \\
+\quad RMEP & $+0.751$\textsuperscript{*} & [$+0.580$, $+0.917$] & $<$0.001 & $+0.080$ & $<$0.001 \\
+\quad Similarity\textsuperscript{a} & $+0.570$\textsuperscript{*} & [$+0.402$, $+0.734$] & $<$0.001 & $+0.055$ & $<$0.001 \\
+\midrule
+\multicolumn{6}{l}{\emph{Architecture, pooled}} \\
+\quad RMEP $-$ VisNet & $-0.133$ & [$-0.249$, $-0.014$] & 0.026 & $-0.016$ & 0.027 \\
+\quad Similarity $-$ VisNet & $-0.055$ & [$-0.132$, $+0.023$] & 0.173 & $+0.004$ & 0.420 \\
+\midrule
+\multicolumn{6}{l}{\emph{Architecture, fine-tuned}} \\
+\quad VisNet $-$ RMEP & $+0.293$\textsuperscript{*} & [$+0.174$, $+0.417$] & $<$0.001 & $+0.037$ & $<$0.001 \\
+\quad Similarity $-$ RMEP & $+0.175$\textsuperscript{*} & [$+0.052$, $+0.298$] & 0.007 & $+0.028$ & $<$0.001 \\
+\quad Similarity $-$ VisNet & $-0.118$ & [$-0.223$, $-0.019$] & 0.021 & $-0.009$ & 0.143 \\

@@ -1,0 +1,17 @@
+=== NewWebcams census ===
+images: 93899   sites: 348   camera views: 1333   capture folders: 227
+dates: 2024-04-09 to 2025-05-17   folders with unreadable timestamps: 0
+reported values: 0 mi: 9, 1 mi: 822, 1.25 mi: 660, 1.5 mi: 728, 1.75 mi: 756, 2 mi: 1194, 2.25 mi: 179, 2.5 mi: 992, 3 mi: 2310, 4 mi: 1808, 5 mi: 2316, 6 mi: 2721, 7 mi: 2796, 8 mi: 2532, 9 mi: 30517, 10 mi: 43559
+classes 1-10: 1: 2975, 2: 2365, 3: 2310, 4: 1808, 5: 2316, 6: 2721, 7: 2796, 8: 2532, 9: 30517, 10: 43559   outside the ten classes: 0   unparseable names: 0
+
+=== Balanced subset ===
+listed: 13520   found in the folder: 13520   missing: 0   sites: 344
+
+=== Brightness of 13520 images (subset; 0 unreadable) ===
+mean luminance below the sky crop, 0 = black, 1 = white
+percentiles 0/1/5/25/50: 0.240 / 0.342 / 0.365 / 0.470 / 0.538
+mean < 0.05: 0 images
+mean < 0.10: 0 images
+mean < 0.15: 0 images
+mean < 0.20: 0 images
+image sizes (width x height): 476x359: 6935, 534x402: 5769, 329x248: 423, 465x350: 320, 321x242: 32, 476x357: 21

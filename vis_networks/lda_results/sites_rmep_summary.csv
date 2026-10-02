@@ -1,0 +1,2 @@
+arch,embedding,untrained,seed,images,n_sites,n_images,n_events,n_pooled_train,embedding_dim,pca_dim,acc_event_grouped,sd_event_grouped,splits_event_grouped,acc_image_level,sd_image_level,chance
+rmep,full,False,42,unseen,10,471,369,0,256,50,0.3547,0.0367,20,0.3658,0.0286,0.1

@@ -1,0 +1,18 @@
+=== NewWebcams census ===
+images: 93899   sites: 348   camera views: 1333   capture folders: 227
+dates: 2024-04-09 to 2025-05-17   folders with unreadable timestamps: 0
+reported values: 0 mi: 9, 1 mi: 822, 1.25 mi: 660, 1.5 mi: 728, 1.75 mi: 756, 2 mi: 1194, 2.25 mi: 179, 2.5 mi: 992, 3 mi: 2310, 4 mi: 1808, 5 mi: 2316, 6 mi: 2721, 7 mi: 2796, 8 mi: 2532, 9 mi: 30517, 10 mi: 43559
+classes 1-10: 1: 2975, 2: 2365, 3: 2310, 4: 1808, 5: 2316, 6: 2721, 7: 2796, 8: 2532, 9: 30517, 10: 43559   outside the ten classes: 0   unparseable names: 0
+
+=== Balanced subset ===
+listed: 13520   found in the folder: 13520   missing: 0   sites: 344
+
+=== Brightness of 93899 images (all; 0 unreadable) ===
+mean luminance below the sky crop, 0 = black, 1 = white
+percentiles 0/1/5/25/50: 0.014 / 0.126 / 0.340 / 0.394 / 0.496
+mean < 0.05: 448 images, sites 74, by class 1: 28, 2: 15, 3: 12, 4: 3, 5: 16, 6: 12, 7: 10, 8: 11, 9: 131, 10: 210
+mean < 0.10: 806 images, sites 102, by class 1: 43, 2: 39, 3: 20, 4: 16, 5: 29, 6: 19, 7: 15, 8: 22, 9: 180, 10: 423
+mean < 0.15: 1089 images, sites 122, by class 1: 58, 2: 50, 3: 30, 4: 26, 5: 45, 6: 21, 7: 21, 8: 37, 9: 219, 10: 582
+mean < 0.20: 1348 images, sites 140, by class 1: 67, 2: 68, 3: 39, 4: 33, 5: 50, 6: 29, 7: 26, 8: 52, 9: 245, 10: 739
+image sizes (width x height): 534x402: 54521, 476x359: 34250, 465x350: 2279, 329x248: 2161, 376x283: 418, 321x242: 192
+folder hour of the images with mean < 0.15: 10h: 142, 11h: 175, 12h: 412, 13h: 1, 15h: 32, 16h: 53, 17h: 92, 18h: 82, 19h: 90, 20h: 9, 9h: 1

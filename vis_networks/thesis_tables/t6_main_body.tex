@@ -1,0 +1,18 @@
+\multicolumn{6}{l}{\emph{Pooled (one model for all sites)}} \\
+\quad VisNet & 24.0 & 65.8 & 2.100 & 2.875 & 0.225 \\
+\quad RMEP & 26.8 & 67.3 & 1.967 & 2.744 & 0.209 \\
+\quad VisNet-Similarity & 27.2 & 65.3 & 2.045 & 2.861 & 0.229 \\
+\midrule
+\multicolumn{6}{l}{\emph{Per-site, trained from scratch}} \\
+\quad VisNet & 23.1 & 54.2 & 2.623 & 3.505 & 0.289 \\
+\quad RMEP & 24.7 & 56.8 & 2.514 & 3.429 & 0.268 \\
+\quad VisNet-Similarity\textsuperscript{a} & 25.3 & 57.0 & 2.508 & 3.415 & 0.271 \\
+\midrule
+\multicolumn{6}{l}{\emph{Per-site, fine-tuned from the pooled model}} \\
+\quad VisNet & 27.4 & 65.3 & 2.056 & 2.857 & 0.225 \\
+\quad RMEP & 33.4 & 70.7 & 1.763 & 2.568 & 0.188 \\
+\quad VisNet-Similarity & 31.8 & 66.7 & 1.938 & 2.793 & 0.216 \\
+\midrule
+\multicolumn{6}{l}{\emph{Baselines that ignore the image}} \\
+\quad Site's majority class\textsuperscript{b} & 24.7 & 56.3 & 2.537 & 3.452 & 0.271 \\
+\quad Constant 5.5 mi\textsuperscript{c} & -- & -- & 2.320 & 2.697 & 0.224 \\

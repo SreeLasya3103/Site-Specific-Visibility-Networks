@@ -1,0 +1,4 @@
+arch,embedding,untrained,seed,images,n_sites,n_images,n_events,n_pooled_train,embedding_dim,pca_dim,acc_event_grouped,sd_event_grouped,splits_event_grouped,acc_image_level,sd_image_level,chance
+similarity,full,False,42,unseen,10,471,369,0,256,50,0.7526,0.0405,20,0.7405,0.0359,0.1
+similarity,p_curr,False,42,unseen,10,471,369,0,128,50,0.5511,0.036,20,0.5423,0.0409,0.1
+similarity,p_diff,False,42,unseen,10,471,369,0,128,50,0.797,0.0403,20,0.7792,0.0355,0.1
