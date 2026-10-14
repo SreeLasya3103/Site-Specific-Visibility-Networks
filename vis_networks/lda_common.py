@@ -33,7 +33,7 @@ def event_of(path):
 
 
 def build_dataset(arch, dset_path, samples, ref_dir=None):
-    """The dataset and evaluation transform each architecture was trained with."""
+    #The dataset and evaluation transform each architecture was trained with.
     from dsets.webcams import cls_10full, cls_10full_dual
     from models.visnet.transform import get_transformer
     if arch == "visnet":
@@ -47,9 +47,7 @@ def build_dataset(arch, dset_path, samples, ref_dir=None):
 
 
 def build_model(arch, input_size, checkpoint, backbone=None, untrained=False, seed=42):
-    """Load a trained checkpoint, or (untrained=True) keep seeded random weights
-    but take the checkpoint's input-normalization buffers, so the trained and
-    untrained networks see identical inputs and differ only in their weights."""
+    #Load a trained checkpoint, or (untrained=True) keep seeded random weights but take the checkpoint's input-normalization buffers, so the trained and untrained networks see identical inputs and differ only in their weights
     from models.visnet import visnet, visnet_similarity
     from models.rmep import rmep
     if not os.path.isfile(checkpoint):
@@ -89,7 +87,6 @@ def build_model(arch, input_size, checkpoint, backbone=None, untrained=False, se
 
 
 def embedding_module(arch, model):
-    """The layer whose INPUT is the embedding the classifier sees."""
     if arch == "similarity":
         return model.cls_head[0]                          # cat([p_curr, p_diff]), 256-dim
     last = None
@@ -100,7 +97,6 @@ def embedding_module(arch, model):
 
 
 def embed(arch, model, dataset, batch_size=16):
-    """Embeddings, visibility (class value, mi) and paths for every sample, in order."""
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                         num_workers=0 if os.name == "nt" else 2)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -120,6 +116,5 @@ def embed(arch, model, dataset, batch_size=16):
 
 
 def pooled_train_share(paths):
-    """How many of these images the pooled models were trained on."""
     trained = set(read_split("splits", ["train.csv"]))
     return sum(p in trained for p in paths)

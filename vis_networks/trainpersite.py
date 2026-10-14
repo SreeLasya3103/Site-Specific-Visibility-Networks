@@ -28,12 +28,10 @@ def load_config():
 
 
 def extract_site_id(path: str) -> str:
-    """Extract site ID from sample path."""
     return os.path.basename(path).split("_")[0]
 
 
 def group_by_site(sample_list: list) -> dict:
-    """Group sample paths by site ID."""
     groups = defaultdict(list)
     for s in sample_list:
         groups[extract_site_id(s)].append(s)
@@ -141,7 +139,6 @@ def create_fresh_model(cf, sample_tensor, train_loader=None, seed=42):
 
 
 def load_pretrained_model(cf, model_path, sample_tensor):
-    """Load a pretrained global model for fine-tuning."""
     ModelClass = cf.model_module.Model
     DsetClass = cf.dset_module.DsetClass
     num_classes = len(DsetClass.CLASS_NAMES) if hasattr(DsetClass, "CLASS_NAMES") else 1

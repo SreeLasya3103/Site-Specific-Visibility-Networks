@@ -46,8 +46,7 @@ def event_of(path):
     return os.path.dirname(path)
 
 
-def raw_label(path):
-    """Reported visibility as written in the file name ('10+' kept as text)."""
+def raw_label(path): #Reported visibility as written in the file name ('10+' kept as text).
     return os.path.basename(path).split("_")[2].split(".")[0].split("S")[1].split("m")[0].replace("-", ".")
 
 
@@ -75,7 +74,6 @@ def load_persite(repo, folder):
 
 
 def split_site_data(samples, train_ratio=0.8, seed=42, val_ratio=0.2):
-    """Copy of trainpersite.split_site_data (kept identical; checked by check_split())."""
     rng = random.Random(seed)
     events = defaultdict(list)
     for s in samples:
@@ -111,7 +109,6 @@ def split_site_data(samples, train_ratio=0.8, seed=42, val_ratio=0.2):
 
 
 def persite_splits(repo, min_samples=20):
-    """The per-site splits exactly as trainpersite.py --use_all_splits builds them."""
     sp = pooled_splits(repo)
     allp = sp["train"] + sp["validation"] + sp["test"]
     by_site = defaultdict(list)
@@ -133,7 +130,6 @@ def class_value(c):
 
 
 def metrics(t, p):
-    """t, p: arrays of nominal class values (1..10 mi)."""
     t = np.asarray(t, float)
     p = np.asarray(p, float)
     return dict(
@@ -148,7 +144,6 @@ def metrics(t, p):
 
 
 def load_all(repo):
-    """Predictions of all nine configurations, restricted to the images all share."""
     preds = {label(m, r): load_predictions(repo, f) for m, r, f in CONFIGS}
     common = sorted(set.intersection(*(set(d) for d in preds.values())))
     return preds, common
@@ -167,7 +162,6 @@ def arrays(preds, name, paths):
 
 
 def paired_bootstrap(t, pa, pb, fn, reps=10000, seed=42):
-    """A - B difference of fn over image-level resamples; p two-sided percentile."""
     rng = np.random.default_rng(seed)
     n = len(t)
     obs = fn(t, pa) - fn(t, pb)
@@ -180,8 +174,6 @@ def paired_bootstrap(t, pa, pb, fn, reps=10000, seed=42):
 
 
 def collection_rows(repo):
-    """Every image of the local collection (dataset_audit_all/lowlight.csv), without the 336
-    exact copies stored in a nested NewWebcams/NewWebcams/ folder."""
     with open(os.path.join(repo, "dataset_audit_all", "lowlight.csv"), newline="") as f:
         rows = list(csv.DictReader(f))
     return [r for r in rows if not r["path"].replace("\\", "/").startswith("NewWebcams/")]

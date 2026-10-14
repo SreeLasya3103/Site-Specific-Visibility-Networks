@@ -1,16 +1,3 @@
-"""
-check_banners.py (v2) - does the 12.81% top crop remove the text banner (with the
-weather report, visibility included) that some partner cameras print across the
-top of the frame?
-
-For every subset image of the listed sites, finds where the black banner band
-ends and compares that with the crop line used by dsets/webcams/common.py.
-
-Run from vis_networks/:
-    python3 check_banners.py
-Writes banner_check.csv and prints a summary.
-"""
-
 import argparse
 import csv
 import math
@@ -24,11 +11,6 @@ TOP_CROP = 0.1281
 
 
 def banner_end(path):
-    """Row where the black banner band ends (0 if the frame starts without one).
-
-    Some frames (the 2025 ones) have a thin coloured border above the banner, so
-    the band is looked for in the top 5% of the frame rather than at row 0.
-    """
     with Image.open(path) as im:
         a = np.asarray(im.convert("RGB"), dtype=np.int32)
     h, w, _ = a.shape

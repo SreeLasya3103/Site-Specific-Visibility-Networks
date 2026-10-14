@@ -393,18 +393,21 @@ def correlations(repo, preds, common):
         body.append(f"{short} & {reg} & " + " & ".join(sgn(x, 2) for x in a) + " & " +
                     " & ".join(sgn(x, 2) for x in (l[0], l[2], l[3])) + " \\\\")
     write("t6_corr_body.tex", "\n".join(body) + "\n")
-    # appendix table: all metrics
-    body = []
-    for m, r in names:
-        reg = "Scratch" if r in ("Scratch", "Per-site heads") else "Fine-tuned"
-        first = True
-        for key, kname in keys:
-            v = out[(m, r)][key]
-            lead = f"{ROW_NAMES[(m, r)]} ({reg.lower()})" if first else ""
-            body.append(f"{lead} & {kname} & " + " & ".join(sgn(x, 2) for x in v) + " \\\\")
-            first = False
-        body.append("\\midrule")
-    write("tC_corr_full_body.tex", "\n".join(body[:-1]) + "\n")
+    # appendix tables: all metrics, one table per regime (scratch, fine-tuned)
+    for reg, fname in (("Scratch", "tC_corr_full_scratch_body.tex"),
+                       ("Fine-tuned", "tC_corr_full_finetuned_body.tex")):
+        body = []
+        for m, r in names:
+            if ("Scratch" if r in ("Scratch", "Per-site heads") else "Fine-tuned") != reg:
+                continue
+            first = True
+            for key, kname in keys:
+                v = out[(m, r)][key]
+                lead = ROW_NAMES[(m, r)] if first else ""
+                body.append(f"{lead} & {kname} & " + " & ".join(sgn(x, 2) for x in v) + " \\\\")
+                first = False
+            body.append("\\midrule")
+        write(fname, "\n".join(body[:-1]) + "\n")
 
 
 def lda_tables(repo):

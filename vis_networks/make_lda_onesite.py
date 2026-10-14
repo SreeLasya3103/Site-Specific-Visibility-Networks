@@ -26,7 +26,6 @@ mpl.rcParams.update({"figure.dpi": 300, "savefig.dpi": 300, "pdf.fonttype": 42, 
 
 
 def fold_stats(X, vis, groups, pca_dim, repeats, seed):
-    """Event-grouped held-out class accuracy and Spearman rho on LDA direction 1."""
     acc, rho = [], []
     for tr, te in GroupShuffleSplit(n_splits=repeats, test_size=0.3, random_state=seed).split(X, vis, groups):
         if len(np.unique(vis[tr])) < 2:

@@ -41,7 +41,6 @@ BAR_W = 0.52
 
 
 def resolve(folder):
-    """Locate a results folder case-insensitively (they were written on Windows)."""
     direct = os.path.join(BASE, folder, "predictions.csv")
     if os.path.exists(direct):
         return direct

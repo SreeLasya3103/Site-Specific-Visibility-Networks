@@ -1,20 +1,3 @@
-"""
-dataset_audit.py - what is in NewWebcams, and does the balanced subset contain
-night or low-light images?
-
-1. Census of the whole folder: images, sites, camera views, capture folders,
-   date range, reported visibility values and the ten classes they fall in.
-2. Checks that every image of the balanced subset (splits/*.csv) is in the folder.
-3. Brightness of every subset image, measured on the region the models see (the
-   top 12.81% of the frame, mostly sky, is cut off first). Writes the numbers and
-   a contact sheet of the darkest images, so night images can be confirmed by eye.
-
-Run from vis_networks/:
-    python3 dataset_audit.py
-Optional: --lowlight_scope all  measures every image in the folder (slower).
-Results go to dataset_audit/.
-"""
-
 import argparse
 import csv
 import os
@@ -33,7 +16,6 @@ TOP_CROP = 0.1281                       # same sky crop as dsets/webcams/common.
 
 
 def visibility(name):
-    """Reported visibility in miles, parsed exactly as dsets/webcams/common.py does."""
     s = name.split("_")[2].split(".")[0].split("S")[1].split("m")[0].replace("-", ".")
     return 10.0 if s == "10+" else min(float(s), 10.0)
 

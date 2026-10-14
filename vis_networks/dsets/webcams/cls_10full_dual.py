@@ -80,8 +80,7 @@ class DsetClass(Dataset):
                 return ref_path
         return None
 
-    def _load_reference(self, view_id):
-        """The view's reference: cropped, resized, and through the plain transform."""
+    def _load_reference(self, view_id): #The view's reference: cropped, resized, and through the plain transform.
         if view_id not in self.ref_cache:
             ref_path = self._reference_path(view_id)
             if ref_path is None:

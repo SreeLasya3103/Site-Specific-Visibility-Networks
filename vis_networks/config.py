@@ -2,14 +2,15 @@ import os
 import torch
 import torchvision.transforms as tf
 from models.visnet import visnet_similarity
+from models.rmep import rmep_similarity
 from dsets.webcams import cls_10full_dual
 from losses.similarity import SimilarityVisibilityLoss
 
 CONFIG = {
-    'model_module': visnet_similarity,
+    'model_module': rmep_similarity,
     'model_params': {
-        #The pooled VisNet checkpoint behind the VisNet "Pooled" row of Table 1, the only best-epoch file in runs\VisNetGlobal.
-        'pretrained_path': 'D:\\Research - Lasya\\Site-Specific-Visibility-Networks\\vis_networks\\runs\\VisNetGlobal\\best_epoch19.pt',
+        #The pooled RMEP checkpoint behind the RMEP "Pooled" row of Table 1, the only best-epoch file in runs\RMEPGlobal.
+        'pretrained_path': 'D:\\Research - Lasya\\Site-Specific-Visibility-Networks\\vis_networks\\runs\\RMEPGlobal\\best_epoch37.pt',
     },
     'transform_params': { 'dim': (280, 280) },
     'existing_model': None,
@@ -20,6 +21,7 @@ CONFIG = {
         'dim': (280,280), 'n_channels': 3, 'crop': True,
         # One reference per camera view, written by the new select_references.py.
         'ref_dir': 'D:\\Research - Lasya\\NewWebcams\\references_by_view',
+        'ref_transform': None,
     },
     'dset_path': 'D:\\Research - Lasya\\NewWebcams',
     # The pooled split minus the two images whose camera views have no reference; neither is in a per-site run or in Table 1's evaluation set.

@@ -22,8 +22,7 @@ mpl.rcParams.update({"figure.dpi": 300, "savefig.dpi": 300, "pdf.fonttype": 42, 
                      "legend.fontsize": 8})
 
 
-def heldout_accuracy(X, y, splits, pca_dim, seed):
-    """Mean and SD of held-out accuracy over the given splits; PCA + LDA fitted on each train side."""
+def heldout_accuracy(X, y, splits, pca_dim, seed): #Mean and SD of held-out accuracy over the given splits; PCA + LDA fitted on each train side.
     accs = []
     for tr, te in splits:
         if len(np.unique(y[tr])) < len(np.unique(y)):

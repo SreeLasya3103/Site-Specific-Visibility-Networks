@@ -1,1 +1,1 @@
-from . import rmep, visnet, integrated, resnet50
+from . import rmep, visnet, resnet50

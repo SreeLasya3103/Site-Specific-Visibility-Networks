@@ -57,7 +57,6 @@ def subset(splits_path):
 
 
 def pick_per_class(paths):
-    """For each class, the image captured closest to 13:00."""
     best = {}
     for p in paths:
         v, raw = visibility(os.path.basename(p))
@@ -154,8 +153,7 @@ def fig_visnet_views(items, root, out):
     plt.close(fig)
 
 
-def fig_cameras(paths, sites, n, root, out, seed=1):
-    """One class-10 frame per camera site, captured closest to 13:00, shown uncropped."""
+def fig_cameras(paths, sites, n, root, out, seed=1): #One class-10 frame per camera site, captured closest to 13:00, shown uncropped
     by_site = {}
     for p in paths:
         if vis_class(visibility(os.path.basename(p))[0]) == 10:

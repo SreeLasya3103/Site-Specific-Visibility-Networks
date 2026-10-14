@@ -11,7 +11,7 @@ SKIP_DIRS = {".git", "__pycache__", "runs", ".venv", ".conda", ".vscode"}
 
 
 def code_root(top):
-    """The shallowest folder holding main.py, so both trees are compared from the same level."""
+#The shallowest folder holding main.py, so both trees are compared from the same level.
     found = []
     for dirpath, dirnames, filenames in os.walk(top):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
