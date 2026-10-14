@@ -1,6 +1,7 @@
 $VIS  = "runs\VisNetGlobal\best_epoch19.pt"
 $RMEP = "runs\RMEPGlobal\best_epoch37.pt"
 $SIM  = "runs\VisNetSimilarity\best_epoch4.pt"
+$RSIM = "runs\RMEPSimilarityGlobal\best_epoch17.pt"
 $REFS = "D:\Research - Lasya\NewWebcams\references_by_view"
 $OUT  = "lda_results"
 
@@ -29,5 +30,9 @@ Step "One site - VisNet" @("make_lda_onesite.py", "--arch", "visnet", "--checkpo
 #    p_diff (difference from the camera's clear-day reference).
 Step "Sites - Similarity"    @("make_lda_sites.py", "--arch", "similarity", "--checkpoint", $SIM, "--backbone", $VIS, "--ref_dir", $REFS, "--label", "VisNet-Similarity", "--out", "$OUT\sites_similarity")
 Step "One site - Similarity" @("make_lda_onesite.py", "--arch", "similarity", "--checkpoint", $SIM, "--backbone", $VIS, "--ref_dir", $REFS, "--out", "$OUT\onesite_similarity")
+
+# 5. RMEP-Similarity: the same design on the frozen pooled RMEP backbone.
+Step "Sites - RMEP-Similarity"    @("make_lda_sites.py", "--arch", "rmep_similarity", "--checkpoint", $RSIM, "--backbone", $RMEP, "--ref_dir", $REFS, "--label", "RMEP-Similarity", "--out", "$OUT\sites_rmep_similarity")
+Step "One site - RMEP-Similarity" @("make_lda_onesite.py", "--arch", "rmep_similarity", "--checkpoint", $RSIM, "--backbone", $RMEP, "--ref_dir", $REFS, "--out", "$OUT\onesite_rmep_similarity")
 
 Write-Host "`nAll LDA runs finished. Results are in $OUT\" -ForegroundColor Green

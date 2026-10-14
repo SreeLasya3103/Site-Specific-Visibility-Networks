@@ -12,7 +12,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import GroupShuffleSplit, StratifiedShuffleSplit
 from sklearn.pipeline import make_pipeline
 
-from lda_common import (ARCHS, default_splits, read_split, site_of, event_of, build_dataset,
+from lda_common import (ARCHS, SIMILARITY_ARCHS, default_splits, read_split, site_of, event_of, build_dataset,
                         build_model, embed, pooled_train_share)
 
 mpl.rcParams.update({"figure.dpi": 300, "savefig.dpi": 300, "pdf.fonttype": 42, "ps.fonttype": 42,
@@ -37,14 +37,15 @@ def main():
     ap = argparse.ArgumentParser(description="Site-identification LDA on pooled-model embeddings")
     ap.add_argument("--arch", required=True, choices=ARCHS)
     ap.add_argument("--checkpoint", required=True, help="pooled (global) best_epochNN.pt")
-    ap.add_argument("--backbone", help="similarity only: the VisNet checkpoint")
-    ap.add_argument("--ref_dir", help="similarity only: references_by_view folder")
+    ap.add_argument("--backbone", help="similarity archs only: the pooled VisNet (similarity) "
+                    "or RMEP (rmep_similarity) checkpoint")
+    ap.add_argument("--ref_dir", help="similarity archs only: references_by_view folder")
     ap.add_argument("--untrained", action="store_true", help="control: random weights")
     ap.add_argument("--images", choices=("unseen", "persite_test"), default="unseen")
     ap.add_argument("--persite_predictions", default="RMEPFineTuneAndPredictionsResults/predictions.csv",
                     help="supplies the per-site test images when --images persite_test")
     ap.add_argument("--dset_path", default=r"D:\Research - Lasya\NewWebcams")
-    ap.add_argument("--splits_path", help="default: splits (similarity: splits/similarity)")
+    ap.add_argument("--splits_path", help="default: splits (similarity archs: splits/similarity)")
     ap.add_argument("--n_sites", type=int, default=10)
     ap.add_argument("--pca_dim", type=int, default=50)
     ap.add_argument("--repeats", type=int, default=20)
@@ -74,7 +75,7 @@ def main():
     print(f"  embeddings {X.shape}, {len(np.unique(groups))} capture events")
 
     parts = {"full": X}
-    if args.arch == "similarity":                         # [p_curr | p_diff], 128 + 128
+    if args.arch in SIMILARITY_ARCHS:                     # [p_curr | p_diff], 128 + 128
         parts["p_curr"], parts["p_diff"] = X[:, :X.shape[1] // 2], X[:, X.shape[1] // 2:]
     chance = 1.0 / len(top)
     rows = []

@@ -3,15 +3,18 @@ import os
 import torch
 from torch.utils.data import DataLoader
 
-ARCHS = ("visnet", "rmep", "similarity")
+ARCHS = ("visnet", "rmep", "similarity", "rmep_similarity")
+# "similarity" is VisNet-Similarity (the name its earlier runs and result files use);
+# "rmep_similarity" is the same design on the frozen pooled RMEP backbone.
+SIMILARITY_ARCHS = ("similarity", "rmep_similarity")
 DIM = (280, 280)
 N_CLASSES = 10
 
 
 def default_splits(arch):
-    # The split lists tracked in the repo. Similarity uses its own copy, which
-    # drops the two images whose camera views have no reference.
-    return os.path.join("splits", "similarity") if arch == "similarity" else "splits"
+    # The split lists tracked in the repo. Both Similarity networks use their own copy,
+    # which drops the two images whose camera views have no reference.
+    return os.path.join("splits", "similarity") if arch in SIMILARITY_ARCHS else "splits"
 
 
 def read_split(splits_path, names):
@@ -41,7 +44,10 @@ def build_dataset(arch, dset_path, samples, ref_dir=None):
     if arch == "rmep":
         return cls_10full.DsetClass(dset_path, list(samples), DIM, 3, None, crop=True)
     if ref_dir is None:
-        raise SystemExit("ERROR: --arch similarity needs --ref_dir")
+        raise SystemExit(f"ERROR: --arch {arch} needs --ref_dir")
+    if arch == "rmep_similarity":                         # RMEP takes the plain image, reference included
+        return cls_10full_dual.DsetClass(dset_path, list(samples), DIM, 3, None,
+                                         crop=True, ref_dir=ref_dir, ref_transform=None)
     return cls_10full_dual.DsetClass(dset_path, list(samples), DIM, 3, get_transformer(DIM),
                                      crop=True, ref_dir=ref_dir)
 
@@ -49,15 +55,17 @@ def build_dataset(arch, dset_path, samples, ref_dir=None):
 def build_model(arch, input_size, checkpoint, backbone=None, untrained=False, seed=42):
     #Load a trained checkpoint, or (untrained=True) keep seeded random weights but take the checkpoint's input-normalization buffers, so the trained and untrained networks see identical inputs and differ only in their weights
     from models.visnet import visnet, visnet_similarity
-    from models.rmep import rmep
+    from models.rmep import rmep, rmep_similarity
     if not os.path.isfile(checkpoint):
         raise SystemExit(f"ERROR: checkpoint not found: {checkpoint}")
-    if arch == "similarity":
+    if arch in SIMILARITY_ARCHS:
         if untrained:
-            raise SystemExit("ERROR: --untrained does not apply to similarity (its backbone is pretrained by design)")
+            raise SystemExit(f"ERROR: --untrained does not apply to {arch} (its backbone is pretrained by design)")
         if backbone is None:
-            raise SystemExit("ERROR: --arch similarity needs --backbone (the VisNet checkpoint)")
-        model = visnet_similarity.Model(N_CLASSES, input_size, pretrained_path=backbone)
+            raise SystemExit(f"ERROR: --arch {arch} needs --backbone (the pooled "
+                             f"{'RMEP' if arch == 'rmep_similarity' else 'VisNet'} checkpoint)")
+        module = rmep_similarity if arch == "rmep_similarity" else visnet_similarity
+        model = module.Model(N_CLASSES, input_size, pretrained_path=backbone)
     else:
         torch.manual_seed(seed)
         model = (visnet if arch == "visnet" else rmep).Model(N_CLASSES, input_size)
@@ -87,7 +95,7 @@ def build_model(arch, input_size, checkpoint, backbone=None, untrained=False, se
 
 
 def embedding_module(arch, model):
-    if arch == "similarity":
+    if arch in SIMILARITY_ARCHS:
         return model.cls_head[0]                          # cat([p_curr, p_diff]), 256-dim
     last = None
     for m in model.modules():                             # VisNet: 4096 -> 10; RMEP: 256 -> 10

@@ -46,12 +46,13 @@ def main():
     ap = argparse.ArgumentParser(description="Per-site LDA of pooled-model embeddings, labelled by visibility")
     ap.add_argument("--arch", required=True, choices=ARCHS)
     ap.add_argument("--checkpoint", required=True, help="pooled (global) best_epochNN.pt")
-    ap.add_argument("--backbone", help="similarity only: the VisNet checkpoint")
-    ap.add_argument("--ref_dir", help="similarity only: references_by_view folder")
+    ap.add_argument("--backbone", help="similarity archs only: the pooled VisNet (similarity) "
+                    "or RMEP (rmep_similarity) checkpoint")
+    ap.add_argument("--ref_dir", help="similarity archs only: references_by_view folder")
     ap.add_argument("--sites", default="SITE22,SITE43")
     ap.add_argument("--labels", default="SITE22 (best),SITE43 (worst)")
     ap.add_argument("--dset_path", default=r"D:\Research - Lasya\NewWebcams")
-    ap.add_argument("--splits_path", help="default: splits (similarity: splits/similarity)")
+    ap.add_argument("--splits_path", help="default: splits (similarity archs: splits/similarity)")
     ap.add_argument("--pca_dim", type=int, default=10,
                     help="kept small: SITE43 has about 50 training images per split")
     ap.add_argument("--repeats", type=int, default=20)
