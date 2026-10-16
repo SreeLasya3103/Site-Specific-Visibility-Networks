@@ -7,9 +7,9 @@ from datetime import datetime
 import numpy as np
 from scipy import stats
 
-from thesis_common import (CONFIGS, arrays, collection_rows, event_of, label, leakage_free, load_all,
+from thesis_common import (CONFIGS, NETWORKS, arrays, collection_rows, event_of, label, leakage_free, load_all,
                            load_persite, load_predictions, metrics, paired_bootstrap,
-                           persite_splits, pooled_splits, raw_label, read_list, site_of,
+                           persite_splits, pooled_splits, raw_label, read_list, regime_of, site_of,
                            view_of, vis_class)
 
 
@@ -179,14 +179,8 @@ def dataset_tables(repo):
 
 #results
 
-ROW_NAMES = {
-    ("VisNet", "Pooled"): "VisNet", ("RMEP", "Pooled"): "RMEP",
-    ("VisNet-Similarity", "Pooled"): "VisNet-Similarity",
-    ("VisNet", "Scratch"): "VisNet", ("RMEP", "Scratch"): "RMEP",
-    ("VisNet-Similarity", "Per-site heads"): "VisNet-Similarity\\textsuperscript{a}",
-    ("VisNet", "Fine-tuned"): "VisNet", ("RMEP", "Fine-tuned"): "RMEP",
-    ("VisNet-Similarity", "Fine-tuned"): "VisNet-Similarity",
-}
+# Row label of each configuration; footnote a marks the per-site heads.
+ROW_NAMES = {(m, r): m + ("\\textsuperscript{a}" if r == "Per-site heads" else "") for m, r, _ in CONFIGS}
 REGIME_TITLES = {"Pooled": "Pooled (one model for all sites)",
                  "Scratch": "Per-site, trained from scratch",
                  "Per-site heads": None,
@@ -204,7 +198,7 @@ def main_table(repo, ps):
     t = A[label("RMEP", "Fine-tuned")][0]
     body, last = [], None
     for m, r, _ in CONFIGS:
-        reg = "Scratch" if r == "Per-site heads" else r
+        reg = regime_of(r)
         if reg != last:
             if last is not None:
                 body.append("\\midrule")
@@ -258,23 +252,23 @@ def main_table(repo, ps):
 
     # paired bootstrap
     P = lambda m, r: A[label(m, r)][1]
-    comps = [
-        ("Adaptation (pooled $-$ fine-tuned)", None),
-        ("VisNet", ("VisNet", "Pooled", "VisNet", "Fine-tuned")),
-        ("RMEP", ("RMEP", "Pooled", "RMEP", "Fine-tuned")),
-        ("Similarity", ("VisNet-Similarity", "Pooled", "VisNet-Similarity", "Fine-tuned")),
-        ("Initialization (scratch $-$ fine-tuned)", None),
-        ("VisNet", ("VisNet", "Scratch", "VisNet", "Fine-tuned")),
-        ("RMEP", ("RMEP", "Scratch", "RMEP", "Fine-tuned")),
-        ("Similarity\\textsuperscript{a}", ("VisNet-Similarity", "Per-site heads", "VisNet-Similarity", "Fine-tuned")),
-        ("Architecture, pooled", None),
-        ("RMEP $-$ VisNet", ("RMEP", "Pooled", "VisNet", "Pooled")),
-        ("Similarity $-$ VisNet", ("VisNet-Similarity", "Pooled", "VisNet", "Pooled")),
-        ("Architecture, fine-tuned", None),
-        ("VisNet $-$ RMEP", ("VisNet", "Fine-tuned", "RMEP", "Fine-tuned")),
-        ("Similarity $-$ RMEP", ("VisNet-Similarity", "Fine-tuned", "RMEP", "Fine-tuned")),
-        ("Similarity $-$ VisNet", ("VisNet-Similarity", "Fine-tuned", "VisNet", "Fine-tuned")),
-    ]
+    # The comparison family, one group per question; Holm runs over all of its MAE p-values.
+    comps = [("Adaptation (pooled $-$ fine-tuned)", None)]
+    comps += [(m, (m, "Pooled", m, "Fine-tuned")) for m in NETWORKS]
+    comps += [("Initialization (scratch $-$ fine-tuned)", None)]
+    comps += [(ROW_NAMES[(m, r)], (m, r, m, "Fine-tuned"))
+              for m, r, _ in CONFIGS if regime_of(r) == "Scratch"]
+    comps += [("Architecture (VisNet $-$ RMEP)", None),
+              ("Pooled", ("VisNet", "Pooled", "RMEP", "Pooled")),
+              ("Fine-tuned", ("VisNet", "Fine-tuned", "RMEP", "Fine-tuned")),
+              ("Clear-day reference (Similarity network $-$ its base network)", None),
+              ("RMEP, pooled", ("RMEP-Similarity", "Pooled", "RMEP", "Pooled")),
+              ("RMEP, fine-tuned", ("RMEP-Similarity", "Fine-tuned", "RMEP", "Fine-tuned")),
+              ("VisNet, pooled", ("VisNet-Similarity", "Pooled", "VisNet", "Pooled")),
+              ("VisNet, fine-tuned", ("VisNet-Similarity", "Fine-tuned", "VisNet", "Fine-tuned")),
+              ("Backbone (RMEP-Similarity $-$ VisNet-Similarity)", None),
+              ("Pooled", ("RMEP-Similarity", "Pooled", "VisNet-Similarity", "Pooled")),
+              ("Fine-tuned", ("RMEP-Similarity", "Fine-tuned", "VisNet-Similarity", "Fine-tuned"))]
     res = []
     for name, c in comps:
         if c is None:
@@ -286,7 +280,7 @@ def main_table(repo, ps):
         res.append((name, (r1, r2)))
         note(f"T6.2 {c[0]} {c[1]} - {c[2]} {c[3]}: dMAE {r1[0]:+.3f} [{r1[1]:+.3f}, {r1[2]:+.3f}] p={r1[3]:.4f}; "
              f"dlog {r2[0]:+.4f} [{r2[1]:+.4f}, {r2[2]:+.4f}] p={r2[3]:.4f}")
-    # Holm over the eleven MAE comparisons
+    # Holm over all the MAE comparisons of the family
     ps_ = [(i, x[1][0][3]) for i, x in enumerate(res) if x[1] is not None]
     m_ = len(ps_)
     holm = {}
@@ -298,26 +292,38 @@ def main_table(repo, ps):
         else:
             stop = True
             holm[i] = False
+    full = [f"{c[0]} {c[1]} - {c[2]} {c[3]}" for _, c in comps if c is not None]
     note(f"Holm over {m_} MAE comparisons: significant = "
-         f"{[res[i][0] for i in holm if holm[i]]}")
-    body = []
-    for i, (name, r) in enumerate(res):
-        if r is None:
-            if i:
-                body.append("\\midrule")
-            body.append(f"\\multicolumn{{6}}{{l}}{{\\emph{{{name}}}}} \\\\")
-            continue
-        (o, lo, hi, p), (o2, lo2, hi2, p2) = r
-        mark = "\\textsuperscript{*}" if holm[i] else ""
-        body.append(f"\\quad {name} & {sgn(o)}{mark} & [{sgn(lo)}, {sgn(hi)}] & {fmt_p(p)} & "
-                    f"{sgn(o2)} & {fmt_p(p2)} \\\\")
-    write("t6_bootstrap_body.tex", "\n".join(body) + "\n")
+         f"{[full[k] for k, i in enumerate(sorted(holm)) if holm[i]]}")
+    # Outside the family, so not corrected and not in the table: VisNet-Similarity against RMEP.
+    for reg in ("Pooled", "Fine-tuned"):
+        r1 = paired_bootstrap(t, P("VisNet-Similarity", reg), P("RMEP", reg), mae)
+        r2 = paired_bootstrap(t, P("VisNet-Similarity", reg), P("RMEP", reg), logmae)
+        note(f"T6.2 extra (not in the Holm family) VisNet-Similarity {reg} - RMEP {reg}: "
+             f"dMAE {r1[0]:+.3f} [{r1[1]:+.3f}, {r1[2]:+.3f}] p={r1[3]:.4f}; "
+             f"dlog {r2[0]:+.4f} [{r2[1]:+.4f}, {r2[2]:+.4f}] p={r2[3]:.4f}")
+    # Two tables, one page each: the training regimes, then the networks.
+    split = next(i for i, (name, r) in enumerate(res) if name.startswith("Architecture"))
+    for fname, part in (("t6_bootstrap_regimes_body.tex", range(split)),
+                        ("t6_bootstrap_networks_body.tex", range(split, len(res)))):
+        body = []
+        for i in part:
+            name, r = res[i]
+            if r is None:
+                if body:
+                    body.append("\\midrule")
+                body.append(f"\\multicolumn{{6}}{{l}}{{\\emph{{{name}}}}} \\\\")
+                continue
+            (o, lo, hi, p), (o2, lo2, hi2, p2) = r
+            mark = "\\textsuperscript{*}" if holm[i] else ""
+            body.append(f"\\quad {name} & {sgn(o)}{mark} & [{sgn(lo)}, {sgn(hi)}] & {fmt_p(p)} & "
+                        f"{sgn(o2)} & {fmt_p(p2)} \\\\")
+        write(fname, "\n".join(body) + "\n")
     return preds, common, lf
 
 
 def persite_behaviour(repo, ps, preds, common, lf):
-    """Constant predictors, selected epochs, and per-site log-MAE."""
-    body = []
+    body, last = [], None
     for m, r, folder in CONFIGS:
         own = load_predictions(repo, folder)
         per = defaultdict(set)
@@ -352,10 +358,11 @@ def persite_behaviour(repo, ps, preds, common, lf):
         note(f"T6.3 {label(m, r)}: constant at {len(const)}/{len(per)} sites "
              f"({len(multi)} with >1 test image; {majority} = a training-majority class); "
              f"per-site log-MAE on eval set: median {np.median(v):.3f} over {len(v)} sites")
-        body.append(f"{ROW_NAMES[(m, r)]} & {r if r != 'Per-site heads' else 'Scratch'} & "
-                    f"{len(const)} / {len(per)} & {be} & {np.median(v):.3f} \\\\")
-        if r == "Pooled" and m == "VisNet-Similarity" or r == "Per-site heads":
+        if body and regime_of(r) != last:
             body.append("\\midrule")
+        last = regime_of(r)
+        body.append(f"{ROW_NAMES[(m, r)]} & {regime_of(r)} & "
+                    f"{len(const)} / {len(per)} & {be} & {np.median(v):.3f} \\\\")
     write("t6_persite_body.tex", "\n".join(body) + "\n")
 
 
@@ -385,20 +392,25 @@ def correlations(repo, preds, common):
         note(f"T6.4 {label(m, r)} ({len(sites)} sites, r(n,k)={np.corrcoef(n, k)[0, 1]:+.2f}): " +
              "; ".join(f"{kk} {v[0]:+.2f}/{v[1]:+.2f}/{v[2]:+.2f}/{v[3]:+.2f}" for kk, v in rows.items()))
     # main-text table: accuracy and log-MAE
-    body = []
+    body, last = [], None
     for m, r in names:
         a, l = out[(m, r)]["acc"], out[(m, r)]["logmae"]
-        reg = "Scratch" if r in ("Scratch", "Per-site heads") else "Fine-tuned"
-        short = ROW_NAMES[(m, r)].replace("VisNet-Similarity", "Similarity")
-        body.append(f"{short} & {reg} & " + " & ".join(sgn(x, 2) for x in a) + " & " +
+        if regime_of(r) != last:
+            if body:
+                body.append("\\midrule")
+            body.append(f"\\multicolumn{{8}}{{l}}{{\\emph{{{REGIME_TITLES[regime_of(r)]}}}}} \\\\")
+            last = regime_of(r)
+        body.append(f"\\quad {ROW_NAMES[(m, r)]} & " + " & ".join(sgn(x, 2) for x in a) + " & " +
                     " & ".join(sgn(x, 2) for x in (l[0], l[2], l[3])) + " \\\\")
     write("t6_corr_body.tex", "\n".join(body) + "\n")
-    # appendix tables: all metrics, one table per regime (scratch, fine-tuned)
-    for reg, fname in (("Scratch", "tC_corr_full_scratch_body.tex"),
-                       ("Fine-tuned", "tC_corr_full_finetuned_body.tex")):
+    # appendix tables: all metrics, one table per regime and network family
+    for reg, fam, fname in (("Scratch", "RMEP", "tC_corr_full_scratch_rmep_body.tex"),
+                            ("Scratch", "VisNet", "tC_corr_full_scratch_visnet_body.tex"),
+                            ("Fine-tuned", "RMEP", "tC_corr_full_finetuned_rmep_body.tex"),
+                            ("Fine-tuned", "VisNet", "tC_corr_full_finetuned_visnet_body.tex")):
         body = []
         for m, r in names:
-            if ("Scratch" if r in ("Scratch", "Per-site heads") else "Fine-tuned") != reg:
+            if regime_of(r) != reg or not m.startswith(fam):
                 continue
             first = True
             for key, kname in keys:
@@ -419,7 +431,7 @@ def lda_tables(repo):
                 if r["embedding"] == emb:
                     return r
     rows = []
-    for arch, name in (("visnet", "VisNet"), ("rmep", "RMEP")):
+    for arch, name in (("rmep", "RMEP"), ("visnet", "VisNet")):
         tr = acc(f"sites_{arch}_summary.csv")
         un = [acc(f"sites_{arch}_untrained{s}_summary.csv") for s in ("", "_seed1", "_seed2")]
         ua = [float(u["acc_event_grouped"]) for u in un]
@@ -431,18 +443,20 @@ def lda_tables(repo):
         rows.append(f"{name} & {int(tr['embedding_dim']):,} & {pct(tr['acc_event_grouped'])} $\\pm$ "
                     f"{pct(tr['sd_event_grouped'])} & "
                     + " / ".join(pct(u["acc_event_grouped"]) for u in un) + " \\\\")
-    for emb, nm in (("full", "VisNet-Similarity, $[\\mathbf{p}_{\\text{curr}}, \\mathbf{p}_{\\text{diff}}]$"),
-                    ("p_curr", "\\quad current image only, $\\mathbf{p}_{\\text{curr}}$"),
-                    ("p_diff", "\\quad difference only, $\\mathbf{p}_{\\text{diff}}$")):
-        r = acc("sites_similarity_summary.csv", emb)
-        note(f"T7.1 Similarity {emb}: {float(r['acc_event_grouped']):.3f} ± {float(r['sd_event_grouped']):.3f} "
-             f"(image-level {float(r['acc_image_level']):.3f}), dim {r['embedding_dim']}")
-        rows.append(f"{nm} & {r['embedding_dim']} & {pct(r['acc_event_grouped'])} $\\pm$ "
-                    f"{pct(r['sd_event_grouped'])} & -- \\\\")
+    for arch, name in (("rmep_similarity", "RMEP-Similarity"), ("similarity", "VisNet-Similarity")):
+        for emb, nm in (("full", f"{name}, $[\\mathbf{{p}}_{{\\text{{curr}}}}, \\mathbf{{p}}_{{\\text{{diff}}}}]$"),
+                        ("p_curr", "\\quad current image only, $\\mathbf{p}_{\\text{curr}}$"),
+                        ("p_diff", "\\quad difference only, $\\mathbf{p}_{\\text{diff}}$")):
+            r = acc(f"sites_{arch}_summary.csv", emb)
+            note(f"T7.1 {name} {emb}: {float(r['acc_event_grouped']):.3f} ± {float(r['sd_event_grouped']):.3f} "
+                 f"(image-level {float(r['acc_image_level']):.3f}), dim {r['embedding_dim']}")
+            rows.append(f"{nm} & {r['embedding_dim']} & {pct(r['acc_event_grouped'])} $\\pm$ "
+                        f"{pct(r['sd_event_grouped'])} & -- \\\\")
     write("t7_sites_body.tex", "\n".join(rows) + "\n")
 
     rows = []
-    for arch, name in (("rmep", "RMEP"), ("visnet", "VisNet"), ("similarity", "VisNet-Similarity")):
+    for arch, name in (("rmep", "RMEP"), ("rmep_similarity", "RMEP-Similarity"), ("visnet", "VisNet"),
+                       ("similarity", "VisNet-Similarity")):
         with open(os.path.join(base, f"onesite_{arch}_summary.csv")) as fh:
             d = {r["site"]: r for r in csv.DictReader(fh)}
         cells = []
@@ -460,7 +474,8 @@ def lda_tables(repo):
 
 def pooled_overall(repo):
     body = []
-    for name, pre in (("VisNet", "VisNet"), ("RMEP", "RMEP"), ("VisNet-Similarity", "Similarity")):
+    for name, pre in (("RMEP", "RMEP"), ("RMEP-Similarity", "RMEPSimilarity"), ("VisNet", "VisNet"),
+                      ("VisNet-Similarity", "Similarity")):
         cells = []
         for split in ("validation", "test"):
             f = os.path.join(repo, f"{pre}SiteEvaluationResults{split.capitalize()}",

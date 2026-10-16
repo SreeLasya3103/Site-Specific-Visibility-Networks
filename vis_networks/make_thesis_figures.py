@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib import font_manager
 
 from thesis_common import (CONFIGS, arrays, collection_rows, event_of, label, leakage_free, load_all,
-                           pooled_splits, site_of, vis_class)
+                           pooled_splits, regime_of, site_of, vis_class)
 
 OUT = "thesis_figures"          
 
@@ -23,7 +23,7 @@ mpl.rcParams.update({
     "axes.spines.top": False, "axes.spines.right": False, "axes.unicode_minus": True,
 })
 WIDTH = 6.0                                     # text width of the ETD template, inches
-COL = {"VisNet": "#1b6ca8", "RMEP": "#c0392b", "VisNet-Similarity": "#2e8b57"}
+COL = {"RMEP": "#c0392b", "RMEP-Similarity": "#e39b2d", "VisNet": "#1b6ca8", "VisNet-Similarity": "#2e8b57"}
 
 
 def save(fig, name):
@@ -119,8 +119,8 @@ def read_metrics(path):
 
 
 def fig_curves(repo):
-    runs = [("VisNet", "VisNetGlobalRunCSvs", 19), ("RMEP", "RMEPGlobalrunCSVs", 37),
-            ("VisNet-Similarity", "VisNetSimilarity", 4)]
+    runs = [("RMEP", "RMEPGlobalrunCSVs", 37), ("RMEP-Similarity", "RMEPSimilarity", 17),
+            ("VisNet", "VisNetGlobalRunCSvs", 19), ("VisNet-Similarity", "VisNetSimilarity", 4)]
     fig, axes = plt.subplots(1, 3, figsize=(WIDTH, 2.4))
     for name, folder, best in runs:
         e, tr_acc, tr_loss = read_metrics(os.path.join(repo, folder, "train_metrics.csv"))
@@ -130,16 +130,16 @@ def fig_curves(repo):
         axes[0].plot(e, 100 * tr_acc, color=c, ls="--", lw=1)
         axes[0].plot(e2, 100 * va_acc, color=c, lw=1.2, label=name)
         axes[0].plot(best, 100 * va_acc[best - 1], "o", color=c, ms=4)
-        ax = axes[2] if name == "VisNet-Similarity" else axes[1]
+        ax = axes[2] if name.endswith("Similarity") else axes[1]
         ax.plot(e, tr_loss, color=c, ls="--", lw=1)
         ax.plot(e2, va_loss, color=c, lw=1.2)
         ax.plot(best, va_loss[best - 1], "o", color=c, ms=4)
     axes[0].set_ylabel("Accuracy (%)")
     axes[0].set_title("(a) Accuracy", loc="left")
     axes[1].set_ylabel("Cross-entropy loss")
-    axes[1].set_title("(b) Loss: VisNet, RMEP", loc="left")
+    axes[1].set_title("(b) Loss: RMEP, VisNet", loc="left")
     axes[2].set_ylabel("Composite loss")
-    axes[2].set_title("(c) Loss: VisNet-Similarity", loc="left")
+    axes[2].set_title("(c) Loss: Similarity networks", loc="left")
     for ax in axes:
         ax.set_xlabel("Epoch")
         ax.set_xlim(0, 81)
@@ -148,7 +148,7 @@ def fig_curves(repo):
     h += [Line2D([], [], color="gray", ls="--", lw=1, label="training"),
           Line2D([], [], color="gray", lw=1.2, label="validation"),
           Line2D([], [], color="gray", marker="o", ls="", ms=4, label="selected epoch")]
-    fig.legend(handles=h, ncol=6, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0),
+    fig.legend(handles=h, ncol=4, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0),
                fontsize=8, handlelength=1.6, columnspacing=1.0)
     fig.tight_layout(w_pad=1.0)
     save(fig, "fig6_training_curves")
@@ -169,27 +169,28 @@ def per_site(preds, name, paths, key):
 def fig_persite_box(repo):
     preds, common = load_all(repo)
     lf = leakage_free(repo, common)
-    order = [("Pooled", "Pooled"), ("Scratch", "Scratch"), ("Fine-tuned", "Fine-tuned")]
+    order = ["Pooled", "Scratch", "Fine-tuned"]
+    step = len(COL) + 1                                  # one gap between regime groups
     fig, ax = plt.subplots(figsize=(WIDTH, 2.9))
     pos, data, cols = [], [], []
-    for gi, (reg, _) in enumerate(order):
+    for gi, reg in enumerate(order):
         for mi, model in enumerate(COL):
-            r = "Per-site heads" if (model == "VisNet-Similarity" and reg == "Scratch") else reg
+            r = next(r for m, r, _ in CONFIGS if m == model and regime_of(r) == reg)
             v = per_site(preds, label(model, r), lf, "logmae")
             data.append(list(v.values()))
-            pos.append(gi * 4 + mi)
+            pos.append(gi * step + mi)
             cols.append(COL[model])
     bp = ax.boxplot(data, positions=pos, widths=0.7, patch_artist=True, showfliers=True,
                     flierprops=dict(marker=".", ms=3, alpha=0.5), medianprops=dict(color="black", lw=1.2))
     for b, c in zip(bp["boxes"], cols):
         b.set_facecolor(c)
         b.set_alpha(0.75)
-    ax.set_xticks([1, 5, 9])
+    ax.set_xticks([gi * step + (len(COL) - 1) / 2 for gi in range(len(order))])
     ax.set_xticklabels(["Pooled", "Per-site from scratch", "Per-site fine-tuned"])
     ax.set_ylabel(r"Per-site log-MAE, $\log_{10}$")
     from matplotlib.patches import Patch
     ax.legend(handles=[Patch(color=c, alpha=0.75, label=n) for n, c in COL.items()], frameon=False,
-              ncol=3, loc="upper center", bbox_to_anchor=(0.5, 1.12))
+              ncol=len(COL), loc="upper center", bbox_to_anchor=(0.5, 1.12))
     save(fig, "fig6_persite_logmae")
 
 

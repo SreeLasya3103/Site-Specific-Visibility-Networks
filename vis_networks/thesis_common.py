@@ -6,18 +6,27 @@ from collections import Counter, defaultdict
 
 import numpy as np
 
-# (model, regime, folder) for the nine configurations, in table order.
+# (model, regime, folder) for the twelve configurations, in table order: grouped by
+# regime, and within a regime RMEP, RMEP-Similarity, VisNet, VisNet-Similarity.
 CONFIGS = [
-    ("VisNet", "Pooled", "VisNetGlobalOnPerSiteTest"),
     ("RMEP", "Pooled", "RMEPGlobalOnPerSiteTest"),
+    ("RMEP-Similarity", "Pooled", "RMEPSimilarityGlobalOnPerSiteTest"),
+    ("VisNet", "Pooled", "VisNetGlobalOnPerSiteTest"),
     ("VisNet-Similarity", "Pooled", "SimilarityGlobalOnPerSiteTest"),
-    ("VisNet", "Scratch", "VisNetPerSiteAndPredictionsResults"),
     ("RMEP", "Scratch", "RMEPPerSiteAndPredictionsResults"),
+    ("RMEP-Similarity", "Per-site heads", "RMEPSimilarityPerSiteAndPredictionsResults"),
+    ("VisNet", "Scratch", "VisNetPerSiteAndPredictionsResults"),
     ("VisNet-Similarity", "Per-site heads", "SimilarityPerSiteAndPredictionsResults"),
-    ("VisNet", "Fine-tuned", "VisNetFineTuneAndPredictionsResults"),
     ("RMEP", "Fine-tuned", "RMEPFineTuneAndPredictionsResults"),
+    ("RMEP-Similarity", "Fine-tuned", "RMEPSimilarityFineTuneAndPredictionsResults"),
+    ("VisNet", "Fine-tuned", "VisNetFineTuneAndPredictionsResults"),
     ("VisNet-Similarity", "Fine-tuned", "SimilarityFineTuneAndPredictionsResults"),
 ]
+NETWORKS = ["RMEP", "RMEP-Similarity", "VisNet", "VisNet-Similarity"]
+
+
+def regime_of(r): #Per-site heads are the Similarity networks' version of training from scratch.
+    return "Scratch" if r == "Per-site heads" else r
 CLASS_GROUPS = [{0.0, 1.0, 1.25, 1.5, 1.75}, {2.0, 2.25, 2.5}] + [{float(k)} for k in range(3, 11)]
 
 
