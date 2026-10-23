@@ -229,11 +229,12 @@ def fig_vs_images_classes(repo):
         ax.boxplot([y[k == kk] for kk in ks], positions=ks, widths=0.6, showfliers=True,
                    flierprops=dict(marker=".", ms=3, alpha=0.5), medianprops=dict(color=COL["RMEP"], lw=1.2))
         for kk in ks:
-            ax.text(kk, -0.03, f"{int((k == kk).sum())}", ha="center", va="top", fontsize=7, color="gray",
+            ax.text(kk, -0.05, f"{int((k == kk).sum())}", ha="center", va="top", fontsize=7, color="gray",
                     transform=ax.get_xaxis_transform())
         ax.set_xlabel("Classes in the site's test set")
         ax.set_title(f"({'a' if r == 'Scratch' else 'b'}) RMEP, {r.lower()}", loc="left")
         ax.xaxis.labelpad = 10
+        ax.tick_params(axis="x", pad=13)
     axes[0].set_ylabel(r"Per-site log-MAE, $\log_{10}$")
     fig.tight_layout(w_pad=1.0)
     save(fig, "fig6_logmae_vs_classes")
