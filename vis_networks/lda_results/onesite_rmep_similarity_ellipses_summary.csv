@@ -1,0 +1,3 @@
+arch,site,n_images,n_pooled_train,n_events,n_classes,pca_dim,acc_heldout,acc_sd,majority_rate,spearman_rho_heldout,rho_sd,splits
+rmep_similarity,SITE22,281,209,131,8,10,0.3926,0.0523,0.3594,0.4227,0.0865,20
+rmep_similarity,SITE43,73,48,31,8,10,0.1727,0.0767,0.1781,0.1087,0.3258,20
