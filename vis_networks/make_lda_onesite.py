@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 from scipy.stats import spearmanr
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -113,6 +114,22 @@ def main():
         r = results[s]
         ax.scatter(r["Z"][:, 0], r["Z"][:, 1], c=r["vis"], cmap="viridis", norm=norm, s=16,
                    alpha=0.85, linewidth=0.3, edgecolor="#303030", zorder=3)
+        # 2-SD ellipse and mean of every visibility class with at least 3 images, as in make_lda_sites.py
+        means = []
+        for v in np.unique(r["vis"]):
+            pts = r["Z"][r["vis"] == v]
+            if len(pts) < 3:
+                continue
+            c = mpl.cm.viridis(norm(v))
+            vals, vecs = np.linalg.eigh(np.cov(pts, rowvar=False))
+            o = vals.argsort()[::-1]; vals, vecs = vals[o], vecs[:, o]
+            ax.add_patch(Ellipse(pts.mean(0), *(4 * np.sqrt(np.maximum(vals, 0))),
+                                 angle=np.degrees(np.arctan2(vecs[1, 0], vecs[0, 0])),
+                                 fill=False, edgecolor=c, ls="--", lw=0.9, zorder=4))
+            means.append(pts.mean(0))
+        means = np.array(means)
+        ax.plot(means[:, 0], means[:, 1], color="#303030", lw=0.8, zorder=5)
+        ax.scatter(means[:, 0], means[:, 1], s=34, marker="X", color="#303030", zorder=6)
         ax.set_title(title); ax.set_xlabel("LDA direction 1"); ax.set_ylabel("LDA direction 2")
         ax.tick_params(length=2); ax.set_axisbelow(True); ax.grid(True, color="#e4e4e4", linewidth=0.4)
         for side in ("top", "right"):
